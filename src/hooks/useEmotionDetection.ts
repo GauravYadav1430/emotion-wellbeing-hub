@@ -25,28 +25,37 @@ export const useEmotionDetection = () => {
   useEffect(() => {
     const loadModels = async () => {
       try {
+        // Ensure we're using the correct path to the models
         const MODEL_URL = '/models';
         
+        // Load models one by one, checking if they're already loaded
         if (!faceapi.nets.tinyFaceDetector.isLoaded) {
+          console.log('Loading tiny face detector model...');
           await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
         }
+        
         if (!faceapi.nets.faceLandmark68Net.isLoaded) {
+          console.log('Loading face landmark model...');
           await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
         }
+        
         if (!faceapi.nets.faceRecognitionNet.isLoaded) {
+          console.log('Loading face recognition model...');
           await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
         }
+        
         if (!faceapi.nets.faceExpressionNet.isLoaded) {
+          console.log('Loading face expression model...');
           await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
         }
         
         setIsModelLoaded(true);
-        console.log('Face detection models loaded successfully');
+        console.log('All face detection models loaded successfully');
       } catch (error) {
         console.error('Error loading models:', error);
         toast({
           title: "Error",
-          description: "Failed to load emotion detection models",
+          description: "Failed to load emotion detection models. Please ensure you have downloaded the model files.",
           variant: "destructive",
         });
       }
