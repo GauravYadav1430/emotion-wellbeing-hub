@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
 
-// Sample emotions data
 const emotionOptions = [
   { name: 'Happy', icon: '😊', color: 'yellow' },
   { name: 'Calm', icon: '😌', color: 'blue' },
@@ -20,7 +18,6 @@ const emotionOptions = [
   { name: 'Anxious', icon: '😰', color: 'peach' },
 ];
 
-// Sample tasks data
 const mockTasks = [
   {
     id: '1',
@@ -55,12 +52,10 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Fetch user's name
     if (user) {
       setUserName(user.email?.split('@')[0] || 'User');
     }
     
-    // Fetch today's emotion if already logged
     const fetchTodaysEmotion = async () => {
       if (!user) return;
       
@@ -80,7 +75,6 @@ const Dashboard: React.FC = () => {
       }
     };
     
-    // Fetch emotion data for chart
     const fetchEmotionData = async () => {
       if (!user) return;
       
@@ -95,13 +89,11 @@ const Dashboard: React.FC = () => {
         .order('created_at', { ascending: true });
       
       if (!error && data) {
-        // Process data for chart
         const chartData = processEmotionChartData(data);
         setMoodChartData(chartData);
       }
     };
     
-    // Placeholder for task completion data
     const setMockTaskData = () => {
       setTaskCompletionData([
         { name: 'Mon', value: 3 },
@@ -119,26 +111,27 @@ const Dashboard: React.FC = () => {
     setMockTaskData();
   }, [user]);
 
-  // Process emotion data for chart display
   const processEmotionChartData = (data: any[]) => {
-    // Group by day
-    const groupedByDay = data.reduce((acc, item) => {
+    if (!Array.isArray(data) || data.length === 0) {
+      return [];
+    }
+
+    const groupedByDay = data.reduce((acc: Record<string, any[]>, item) => {
       const day = format(new Date(item.created_at), 'ccc');
       if (!acc[day]) {
         acc[day] = [];
       }
       acc[day].push(item);
       return acc;
-    }, {} as Record<string, any[]>);
+    }, {});
     
-    // Calculate average mood score per day
     return Object.entries(groupedByDay).map(([day, emotions]) => {
-      const avgValue = emotions.reduce((sum, emotion) => 
+      const avgValue = emotions.reduce((sum: number, emotion: any) => 
         sum + (emotion.confidence * 10), 0) / emotions.length;
       
       return {
         name: day,
-        value: Math.round(avgValue * 10) / 10
+        value: isNaN(avgValue) ? 0 : Math.round(avgValue * 10) / 10
       };
     });
   };
@@ -149,7 +142,6 @@ const Dashboard: React.FC = () => {
     ));
   };
 
-  // Get appropriate greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -173,7 +165,6 @@ const Dashboard: React.FC = () => {
           <CardContent className="p-6">
             <h3 className="text-lg font-medium mb-4">Your Current Mood</h3>
             {todaysEmotion ? (
-              // Display today's logged emotion
               <div className="text-center">
                 <div className="inline-flex items-center justify-center">
                   {(() => {
@@ -206,7 +197,6 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             ) : (
-              // Display emotion selection
               <>
                 <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
                   {emotionOptions.map((emotion) => (
