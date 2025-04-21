@@ -1,22 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronRight, Plus, Camera } from 'lucide-react';
-import EmotionCard from '@/components/EmotionCard';
-import TaskCard from '@/components/TaskCard';
-import StatCard from '@/components/StatCard';
+import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
-
-const emotionOptions = [
-  { name: 'Happy', icon: '😊', color: 'yellow' },
-  { name: 'Calm', icon: '😌', color: 'blue' },
-  { name: 'Sad', icon: '😔', color: 'purple' },
-  { name: 'Anxious', icon: '😰', color: 'peach' },
-];
+import EmotionStats from '@/components/dashboard/EmotionStats';
+import TasksList from '@/components/dashboard/TasksList';
+import InsightsTabs from '@/components/dashboard/InsightsTabs';
+import StatCard from '@/components/StatCard';
+import type { Emotion } from '@/types/emotions';
 
 const mockTasks = [
   {
@@ -41,14 +33,6 @@ const mockTasks = [
     category: 'creative'
   },
 ];
-
-interface Emotion {
-  id: string;
-  emotion: string;
-  confidence: number;
-  notes?: string;
-  created_at: string;
-}
 
 const Dashboard: React.FC = () => {
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
@@ -169,73 +153,11 @@ const Dashboard: React.FC = () => {
       </div>
 
       <section className="mb-8">
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4">Your Current Mood</h3>
-            {todaysEmotion ? (
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center">
-                  {(() => {
-                    const emotionData = emotionOptions.find(e => e.name === todaysEmotion.emotion) || 
-                                      { name: todaysEmotion.emotion, icon: '😐', color: 'green' };
-                    
-                    let bgColor = 'bg-wellness-purple-light';
-                    if (emotionData.color === 'yellow') bgColor = 'bg-wellness-yellow-light';
-                    if (emotionData.color === 'blue') bgColor = 'bg-wellness-blue-light';
-                    if (emotionData.color === 'green') bgColor = 'bg-wellness-green-light';
-                    if (emotionData.color === 'peach') bgColor = 'bg-wellness-peach-light';
-                    
-                    return (
-                      <div className={`${bgColor} w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4`}>
-                        {emotionData.icon}
-                      </div>
-                    );
-                  })()}
-                </div>
-                <p className="text-xl font-medium">{todaysEmotion.emotion}</p>
-                {todaysEmotion.notes && (
-                  <p className="text-muted-foreground mt-2 italic">"{todaysEmotion.notes}"</p>
-                )}
-                <div className="mt-4">
-                  <Link to="/emotions">
-                    <Button variant="outline">
-                      Log Another Emotion
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
-                  {emotionOptions.map((emotion) => (
-                    <EmotionCard
-                      key={emotion.name}
-                      emotion={emotion}
-                      isSelected={selectedEmotion === emotion.name}
-                      onClick={() => setSelectedEmotion(emotion.name)}
-                    />
-                  ))}
-                </div>
-                <div className="mt-4 flex justify-center sm:justify-start space-x-4">
-                  <Link to="/emotions">
-                    <Button 
-                      className="bg-wellness-purple hover:bg-wellness-purple-dark text-white"
-                      disabled={!selectedEmotion}
-                    >
-                      Log Emotion
-                    </Button>
-                  </Link>
-                  <Link to="/emotions?tab=detect">
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <Camera className="h-4 w-4" />
-                      <span>Detect with Camera</span>
-                    </Button>
-                  </Link>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        <EmotionStats
+          todaysEmotion={todaysEmotion}
+          selectedEmotion={selectedEmotion}
+          setSelectedEmotion={setSelectedEmotion}
+        />
       </section>
 
       <section className="grid md:grid-cols-2 gap-6 mb-8">
@@ -259,59 +181,10 @@ const Dashboard: React.FC = () => {
         />
       </section>
 
-      <section className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">Today's Tasks</h3>
-          <Link to="/tasks">
-            <Button variant="outline" size="sm" className="gap-1">
-              <span>View All</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-        
-        <div className="space-y-4">
-          {tasks.slice(0, 3).map(task => (
-            <TaskCard 
-              key={task.id}
-              task={task}
-              onComplete={handleTaskComplete}
-            />
-          ))}
-          
-          <Link to="/tasks">
-            <Button variant="outline" className="w-full flex items-center justify-center gap-2">
-              <Plus className="h-4 w-4" />
-              <span>Add New Task</span>
-            </Button>
-          </Link>
-        </div>
-      </section>
+      <TasksList tasks={tasks} onTaskComplete={handleTaskComplete} />
 
       <section>
-        <Tabs defaultValue="insights">
-          <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="insights">Insights</TabsTrigger>
-            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-          </TabsList>
-          <TabsContent value="insights" className="p-4 bg-muted rounded-lg mt-4">
-            <p className="text-sm text-muted-foreground">
-              {moodChartData.length >= 3 
-                ? "Based on your recent mood patterns, you tend to feel more anxious in the afternoons. Try scheduling a short break around 3 PM to reset."
-                : "Log your emotions regularly to receive personalized insights about your mood patterns."}
-            </p>
-          </TabsContent>
-          <TabsContent value="recommendations" className="p-4 bg-muted rounded-lg mt-4">
-            <p className="text-sm text-muted-foreground">
-              Try these activities to improve your mood:
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>5-minute breathing exercise</li>
-                <li>Listen to uplifting music</li>
-                <li>Take a short walk outside</li>
-              </ul>
-            </p>
-          </TabsContent>
-        </Tabs>
+        <InsightsTabs moodChartData={moodChartData} />
       </section>
     </div>
   );
