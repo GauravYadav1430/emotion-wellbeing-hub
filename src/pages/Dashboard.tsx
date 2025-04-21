@@ -42,12 +42,20 @@ const mockTasks = [
   },
 ];
 
+interface Emotion {
+  id: string;
+  emotion: string;
+  confidence: number;
+  notes?: string;
+  created_at: string;
+}
+
 const Dashboard: React.FC = () => {
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
   const [tasks, setTasks] = useState(mockTasks);
-  const [moodChartData, setMoodChartData] = useState<any[]>([]);
-  const [taskCompletionData, setTaskCompletionData] = useState<any[]>([]);
-  const [todaysEmotion, setTodaysEmotion] = useState<any | null>(null);
+  const [moodChartData, setMoodChartData] = useState<Array<{ name: string; value: number }>>([]);
+  const [taskCompletionData, setTaskCompletionData] = useState<Array<{ name: string; value: number }>>([]);
+  const [todaysEmotion, setTodaysEmotion] = useState<Emotion | null>(null);
   const [userName, setUserName] = useState<string>('');
   const { user } = useAuth();
 
@@ -71,7 +79,7 @@ const Dashboard: React.FC = () => {
         .limit(1);
       
       if (!error && data && data.length > 0) {
-        setTodaysEmotion(data[0]);
+        setTodaysEmotion(data[0] as Emotion);
       }
     };
     
@@ -89,7 +97,7 @@ const Dashboard: React.FC = () => {
         .order('created_at', { ascending: true });
       
       if (!error && data) {
-        const chartData = processEmotionChartData(data);
+        const chartData = processEmotionChartData(data as Emotion[]);
         setMoodChartData(chartData);
       }
     };
@@ -111,12 +119,12 @@ const Dashboard: React.FC = () => {
     setMockTaskData();
   }, [user]);
 
-  const processEmotionChartData = (data: any[]) => {
+  const processEmotionChartData = (data: Emotion[]) => {
     if (!Array.isArray(data) || data.length === 0) {
       return [];
     }
 
-    const groupedByDay = data.reduce((acc: Record<string, any[]>, item) => {
+    const groupedByDay = data.reduce((acc: Record<string, Emotion[]>, item) => {
       const day = format(new Date(item.created_at), 'ccc');
       if (!acc[day]) {
         acc[day] = [];
@@ -126,7 +134,7 @@ const Dashboard: React.FC = () => {
     }, {});
     
     return Object.entries(groupedByDay).map(([day, emotions]) => {
-      const avgValue = emotions.reduce((sum: number, emotion: any) => 
+      const avgValue = emotions.reduce((sum, emotion) => 
         sum + (emotion.confidence * 10), 0) / emotions.length;
       
       return {
