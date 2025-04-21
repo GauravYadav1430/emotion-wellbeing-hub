@@ -1,40 +1,15 @@
 
 const fs = require('fs');
-const https = require('https');
 const path = require('path');
 
 const models = [
   {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/tiny_face_detector_model-weights_manifest.json',
-    path: 'tiny_face_detector_model-weights_manifest.json'
-  },
-  {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/tiny_face_detector_model-shard1',
-    path: 'tiny_face_detector_model-shard1'
-  },
-  {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_landmark_68_model-weights_manifest.json',
-    path: 'face_landmark_68_model-weights_manifest.json'
-  },
-  {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_landmark_68_model-shard1',
-    path: 'face_landmark_68_model-shard1'
-  },
-  {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_recognition_model-weights_manifest.json',
-    path: 'face_recognition_model-weights_manifest.json'
-  },
-  {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_recognition_model-shard1',
-    path: 'face_recognition_model-shard1'
-  },
-  {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_expression_model-weights_manifest.json',
-    path: 'face_expression_model-weights_manifest.json'
-  },
-  {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_expression_model-shard1',
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_expression/face_expression_model-shard1',
     path: 'face_expression_model-shard1'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_expression/face_expression_model-weights_manifest.json',
+    path: 'face_expression_model-weights_manifest.json'
   }
 ];
 
@@ -44,21 +19,27 @@ if (!fs.existsSync(modelsDir)) {
   fs.mkdirSync(modelsDir, { recursive: true });
 }
 
-// Download each model file
-models.forEach(model => {
-  const filePath = path.join(modelsDir, model.path);
-  
-  https.get(model.url, (response) => {
-    const fileStream = fs.createWriteStream(filePath);
-    response.pipe(fileStream);
-    
-    fileStream.on('finish', () => {
-      console.log(`Downloaded: ${model.path}`);
-      fileStream.close();
-    });
-  }).on('error', (err) => {
-    console.error(`Error downloading ${model.path}:`, err.message);
-  });
-});
+// Async function to download a file
+async function downloadFile(url, filePath) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to download ${url}: ${response.statusText}`);
+    }
+    const buffer = await response.arrayBuffer();
+    fs.writeFileSync(path.join(modelsDir, filePath), Buffer.from(buffer));
+    console.log(`Successfully downloaded: ${filePath}`);
+  } catch (error) {
+    console.error(`Error downloading ${filePath}:`, error.message);
+  }
+}
 
-console.log('Starting model downloads...');
+// Download all models
+async function downloadModels() {
+  for (const model of models) {
+    await downloadFile(model.url, model.path);
+  }
+  console.log('Model download process completed.');
+}
+
+downloadModels();
