@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,33 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				wellness: {
+					purple: {
+						light: '#d6bcfa',
+						DEFAULT: '#9b87f5',
+						dark: '#7E69AB'
+					},
+					green: {
+						light: '#F2FCE2',
+						DEFAULT: '#68D391',
+						dark: '#38A169'
+					},
+					blue: {
+						light: '#D3E4FD',
+						DEFAULT: '#63B3ED',
+						dark: '#3182CE'
+					},
+					peach: {
+						light: '#FDE1D3',
+						DEFAULT: '#FEC6A1',
+						dark: '#ED8936'
+					},
+					yellow: {
+						light: '#FEF7CD',
+						DEFAULT: '#F6E05E',
+						dark: '#D69E2E'
+					}
 				}
 			},
 			borderRadius: {
@@ -84,11 +112,26 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-gentle': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-8px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-gentle': 'pulse-gentle 3s ease-in-out infinite',
+				'float': 'float 6s ease-in-out infinite'
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'purple-gradient': 'linear-gradient(to right, #9b87f5, #7E69AB)',
+				'calm-gradient': 'linear-gradient(to right bottom, #d6bcfa, #9b87f5)'
 			}
 		}
 	},
