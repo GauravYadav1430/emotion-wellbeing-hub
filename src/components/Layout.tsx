@@ -5,6 +5,8 @@ import { Home, LineChart, CalendarCheck, User, Menu } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from '@/hooks/use-mobile';
+import LogoutButton from '@/components/auth/LogoutButton';
+import { useAuth } from '@/context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,6 +15,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   
   const navLinks = [
     { path: '/', label: 'Dashboard', icon: <Home className="h-5 w-5" /> },
@@ -29,7 +32,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-purple-gradient">Emotion Hub</h1>
       </div>
-      <nav className="space-y-2 mt-6">
+      
+      <div className="px-2 py-2">
+        <div className="bg-muted rounded-lg p-2 mb-4">
+          <p className="text-sm">Signed in as:</p>
+          <p className="font-medium truncate">{user?.email}</p>
+          <div className="mt-2">
+            <LogoutButton variant="secondary" />
+          </div>
+        </div>
+      </div>
+      
+      <nav className="space-y-2">
         {navLinks.map((link) => {
           const isActive = location.pathname === link.path;
           return (
