@@ -18,6 +18,9 @@ const CameraComponent: React.FC<CameraProps> = ({
   videoRef,
   canvasRef,
 }) => {
+  // Check for MediaDevices support
+  const isCameraSupported = 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices;
+  
   return (
     <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
       <video
@@ -36,14 +39,21 @@ const CameraComponent: React.FC<CameraProps> = ({
       />
       
       {!isCapturing ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-          <Button 
-            onClick={onStartCapture}
-            className="bg-wellness-purple hover:bg-wellness-purple-dark text-white"
-          >
-            <Camera className="w-4 h-4 mr-2" />
-            Start Camera
-          </Button>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+          {!isCameraSupported ? (
+            <div className="text-center p-4">
+              <p className="text-white mb-2">Camera access is not supported in this browser</p>
+              <p className="text-white/70 text-sm">Please try a modern browser like Chrome, Firefox, or Edge</p>
+            </div>
+          ) : (
+            <Button 
+              onClick={onStartCapture}
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              Start Camera
+            </Button>
+          )}
         </div>
       ) : (
         <div className="absolute bottom-4 left-0 right-0 flex justify-center">

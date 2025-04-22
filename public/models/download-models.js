@@ -1,6 +1,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
 // Complete list of required face-api.js models
 const models = [
@@ -55,37 +56,48 @@ if (!fs.existsSync(modelsDir)) {
   fs.mkdirSync(modelsDir, { recursive: true });
 }
 
-// Async function to download a file
+// Directly download file using Node.js https module (no fetch dependency)
 async function downloadFile(url, filePath) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to download ${url}: ${response.statusText}`);
-    }
-    const buffer = await response.arrayBuffer();
-    fs.writeFileSync(path.join(modelsDir, filePath), Buffer.from(buffer));
-    console.log(`Successfully downloaded: ${filePath}`);
-  } catch (error) {
-    console.error(`Error downloading ${filePath}:`, error.message);
-  }
+  return new Promise((resolve, reject) => {
+    const fullPath = path.join(modelsDir, filePath);
+    const file = fs.createWriteStream(fullPath);
+    
+    https.get(url, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to download ${url}: ${response.statusCode}`));
+        return;
+      }
+      
+      response.pipe(file);
+      
+      file.on('finish', () => {
+        file.close();
+        console.log(`Successfully downloaded: ${filePath}`);
+        resolve();
+      });
+      
+      file.on('error', (err) => {
+        fs.unlink(fullPath, () => {}); // Delete the file on error
+        reject(err);
+      });
+    }).on('error', (err) => {
+      fs.unlink(fullPath, () => {}); // Delete the file on error
+      reject(err);
+    });
+  });
 }
 
 // Download all models
 async function downloadModels() {
   console.log('Starting model downloads...');
   for (const model of models) {
-    await downloadFile(model.url, model.path);
+    try {
+      await downloadFile(model.url, model.path);
+    } catch (error) {
+      console.error(`Error downloading ${model.path}:`, error.message);
+    }
   }
   console.log('Model download process completed.');
 }
 
-// Use node-fetch for Node.js environments
-if (typeof fetch !== 'function') {
-  import('node-fetch').then(({ default: fetch }) => {
-    global.fetch = fetch;
-    downloadModels();
-  });
-} else {
-  downloadModels();
-}
-
+downloadModels();
