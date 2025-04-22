@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, LineChart, CalendarCheck, User, Menu } from 'lucide-react';
@@ -27,10 +26,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const NavContent = () => (
     <>
       <div className="flex items-center gap-3 px-2 py-4">
-        <div className="bg-purple-gradient rounded-full w-8 h-8 flex items-center justify-center">
+        <div className="rounded-full w-8 h-8 flex items-center justify-center bg-primary">
           <span className="text-white font-bold text-lg">E</span>
         </div>
-        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-purple-gradient">Emotion Hub</h1>
+        <h1 className="text-xl font-bold">Emotion Hub</h1>
       </div>
       
       <div className="px-2 py-2">
@@ -52,7 +51,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               to={link.path}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive 
-                  ? 'bg-wellness-purple text-white font-medium' 
+                  ? 'bg-primary text-primary-foreground font-medium' 
                   : 'hover:bg-muted text-foreground'
               }`}
             >
@@ -67,22 +66,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar for desktop */}
       {!isMobile && (
         <aside className="hidden md:block w-64 border-r p-4">
           <NavContent />
         </aside>
       )}
       
-      {/* Mobile header and navigation */}
       <div className="flex flex-col w-full">
         {isMobile && (
           <header className="border-b p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="bg-purple-gradient rounded-full w-8 h-8 flex items-center justify-center">
+              <div className="rounded-full w-8 h-8 flex items-center justify-center bg-primary">
                 <span className="text-white font-bold text-lg">E</span>
               </div>
-              <h1 className="text-xl font-bold bg-clip-text text-transparent bg-purple-gradient">
+              <h1 className="text-xl font-bold">
                 Emotion Hub
               </h1>
             </div>
