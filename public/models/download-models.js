@@ -2,13 +2,49 @@
 const fs = require('fs');
 const path = require('path');
 
+// Complete list of required face-api.js models
 const models = [
+  // Face detection models (TinyFaceDetector)
   {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_expression/face_expression_model-shard1',
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/tiny_face_detector_model-shard1',
+    path: 'tiny_face_detector_model-shard1'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/tiny_face_detector_model-weights_manifest.json',
+    path: 'tiny_face_detector_model-weights_manifest.json'
+  },
+  
+  // Face landmark detection models
+  {
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_landmark_68_model-shard1',
+    path: 'face_landmark_68_model-shard1'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_landmark_68_model-weights_manifest.json',
+    path: 'face_landmark_68_model-weights_manifest.json'
+  },
+  
+  // Face recognition model
+  {
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_recognition_model-shard1',
+    path: 'face_recognition_model-shard1'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_recognition_model-shard2',
+    path: 'face_recognition_model-shard2'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_recognition_model-weights_manifest.json',
+    path: 'face_recognition_model-weights_manifest.json'
+  },
+  
+  // Face expression model
+  {
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_expression_model-shard1',
     path: 'face_expression_model-shard1'
   },
   {
-    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_expression/face_expression_model-weights_manifest.json',
+    url: 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/face_expression_model-weights_manifest.json',
     path: 'face_expression_model-weights_manifest.json'
   }
 ];
